@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import csv
+import time
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0 ; Win64 ; x64)"}
 books_dict = {}
@@ -9,24 +10,38 @@ books_list = []
 stars_dict = {"One": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5}
 
 
-def fetch_page(url):
-    try:
-        response = requests.get(url, headers=header, timeout=5)
-        response.encoding = "utf-8"
-        return BeautifulSoup(response.text, "html.parser")
-    except requests.exceptions.ConnectTimeout:
-        print("timeout - cant reach site")
-    except requests.exceptions.ConnectionError:
-        print("cant open the site - check your network connection")
-    except requests.exceptions.HTTPError as e:
-        print(f"HTTP Error : {e}")
+def fetch_page(url, max_try=5):
+    for i in range(max_try):
+        try:
+            response = requests.get(url, headers=header, timeout=5)
+            response.encoding = "utf-8"
+            return BeautifulSoup(response.text, "html.parser")
+        except requests.exceptions.ConnectTimeout:
+            print("timeout - cant reach site")
+            return "error"
+        except requests.exceptions.ConnectionError:
+            print("cant open the site - check your network connection")
+            return "error"
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP Error : {e}")
+            return "error"
+        except requests.Timeout:
+            print("timeout")
+            print("Retrying")
+    else:
+        print("Reach Max trying")
+        return "timeout"
 
 
-def fetch_data():
-    soup = fetch_page("https://books.toscrape.com/")
+def fetch_data(url):
+    soup = fetch_page(url)
     if soup is None:
         print("Could not fetch data")
         return
+    elif soup == "timeout":
+        return "Failed to fetch"
+    elif soup == "error":
+        return "Connection Error"
     rows = soup.find_all("article", class_="product_pod")
     for items in rows:
         title = items.find("h3").find("a")["title"]
@@ -37,7 +52,8 @@ def fetch_data():
         books_list.append([title, price, stars_dict[stars[1]], availability])
     save_json()
     save_csv()
-    calculate()
+    time.sleep(1)
+    return soup.find("li", class_="next")
 
 
 def calculate():
@@ -74,4 +90,27 @@ def save_csv():
             )
 
 
-fetch_data()
+current_page = 1
+
+
+def __main__():
+    global current_page
+    while True:
+        result = fetch_data(
+            f"https://books.toscrape.com/catalogue/page-{current_page}.html"
+        )
+        if result == "Failed to fetch":
+            current_page += 1
+            print("Skipping Page")
+        elif result == "Connection Error":
+            break
+        elif result:
+            print(f"Page {current_page} ended")
+            current_page += 1
+        else:
+            print("End Of Process")
+            calculate()
+            break
+
+
+__main__()
