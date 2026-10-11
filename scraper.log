@@ -1,0 +1,10 @@
+2026-10-12 01:40:54,404 , INFO , Start The Process
+2026-10-12 01:40:57,337 , INFO , Successfully fetched https://books.toscrape.com/catalogue/page-48.html
+2026-10-12 01:40:57,428 , INFO , Extracted 20 Books
+2026-10-12 01:40:58,445 , INFO , Page 48 ended
+2026-10-12 01:41:01,160 , INFO , Successfully fetched https://books.toscrape.com/catalogue/page-49.html
+2026-10-12 01:41:01,199 , INFO , Extracted 20 Books
+2026-10-12 01:41:02,214 , INFO , Page 49 ended
+2026-10-12 01:41:05,221 , INFO , Successfully fetched https://books.toscrape.com/catalogue/page-50.html
+2026-10-12 01:41:05,286 , INFO , Extracted 20 Books
+2026-10-12 01:41:06,303 , INFO , End Of Process - Number Of Books Fetched : 60

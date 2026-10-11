@@ -3,6 +3,13 @@ from bs4 import BeautifulSoup
 import json
 import csv
 import time
+import logging
+
+logging.basicConfig(
+    filename="scraper.log",
+    level=logging.INFO,
+    format="%(asctime)s , %(levelname)s , %(message)s",
+)
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0 ; Win64 ; x64)"}
 books_dict = {}
@@ -11,38 +18,44 @@ stars_dict = {"One": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5}
 
 
 def fetch_page(url, max_try=5):
-    for i in range(max_try):
+    for i in range(1, max_try):
         try:
             response = requests.get(url, headers=header, timeout=5)
             response.encoding = "utf-8"
+            if response.status_code != 200:
+                logging.error(f"{response.status_code} Error for {url}")
+                return "error"
+            logging.info(f"Successfully fetched {url}")
             return BeautifulSoup(response.text, "html.parser")
         except requests.exceptions.ConnectTimeout:
-            print("timeout - cant reach site")
+            logging.warning(f"Timeout on {url} - Can't reach site")
             return "error"
         except requests.exceptions.ConnectionError:
-            print("cant open the site - check your network connection")
+            logging.warning(
+                f"Connection Error on {url} - Check Your Network Connection"
+            )
             return "error"
         except requests.exceptions.HTTPError as e:
-            print(f"HTTP Error : {e}")
+            logging.warning(f"Http Error on {url} - {e}")
             return "error"
         except requests.Timeout:
-            print("timeout")
-            print("Retrying")
+            logging.warning(f"Timeout on {url} - {i}. retrying")
     else:
-        print("Reach Max trying")
+        logging.error(f"Can't fetch {url} - Skipping")
         return "timeout"
 
 
 def fetch_data(url):
     soup = fetch_page(url)
     if soup is None:
-        print("Could not fetch data")
+        logging.warning(f"Could not fetch data from {url}")
         return
     elif soup == "timeout":
         return "Failed to fetch"
     elif soup == "error":
         return "Connection Error"
     rows = soup.find_all("article", class_="product_pod")
+    logging.info(f"Extracted {len(rows)} Books")
     for items in rows:
         title = items.find("h3").find("a")["title"]
         price = float(items.find("p", class_="price_color").text.strip().strip("£"))
@@ -94,6 +107,7 @@ current_page = 1
 
 
 def __main__():
+    logging.info("Start The Process")
     global current_page
     while True:
         result = fetch_data(
@@ -101,16 +115,16 @@ def __main__():
         )
         if result == "Failed to fetch":
             current_page += 1
-            print("Skipping Page")
+            logging.warning(f"Skipping to Page {current_page}")
         elif result == "Connection Error":
             break
         elif result:
-            print(f"Page {current_page} ended")
+            logging.info(f"Page {current_page} ended")
             current_page += 1
         else:
-            print("End Of Process")
             calculate()
             break
 
 
 __main__()
+logging.info(f"End Of Process - Number Of Books Fetched : {len(books_list)}")
