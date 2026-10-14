@@ -1,6 +1,6 @@
 # Book Scraper
 
-A Python script that scrapes **all books across all pages** of [books.toscrape.com](https://books.toscrape.com/), a sandbox site built for scraping practice. It handles pagination, retries failed requests, logs everything, and saves results as both CSV and JSON.
+A Python script that scrapes **all books across all pages** of [books.toscrape.com](https://books.toscrape.com/), a sandbox site built for scraping practice. It handles pagination, retries failed requests, logs everything, and saves results as CSV, JSON, and Excel file(xlsx).
 
 ## Features
 
@@ -8,7 +8,7 @@ A Python script that scrapes **all books across all pages** of [books.toscrape.c
 - **Retry logic**: retries on timeout (e.g. slow connection) up to 5 times before giving up on a page
 - **Status code validation**: treats non-200 responses as failures instead of silently processing bad pages
 - **Logging**: every fetch, retry, extraction, and error is logged to `scraper.log` with timestamps
-- **Dual output**: saves results to `books.csv` and `books.json`
+- **multi-output**: saves results to `books.csv`, `books.json`, and `books.xlsx`
 - **Summary report**: prints total books, average price, and number in stock
 
 ## Requirements
@@ -16,10 +16,13 @@ A Python script that scrapes **all books across all pages** of [books.toscrape.c
 - Python 3.8+
 - `requests`
 - `beautifulsoup4`
+- `pandas`
+- `openpyxl`
 
 Install dependencies:
+
 ```bash
-pip install requests beautifulsoup4
+pip install requests beautifulsoup4 pandas openpyxl
 ```
 
 ## Usage
@@ -28,7 +31,7 @@ pip install requests beautifulsoup4
 python3 book_scraper.py
 ```
 
-Output files (`books.csv`, `books.json`, `scraper.log`) are created in the same folder.
+Output files (`books.csv`, `books.json`, `books.xlsx`, `scraper.log`) are created in the same folder.
 
 ## Sample Output
 
@@ -55,7 +58,7 @@ available books : 1000
 2. Checks for a "next page" link to know when to stop (works even if the site's page count changes).
 3. On a timeout, retries the same page up to 5 times with a short delay before giving up.
 4. On a connection error (e.g. unreachable domain), stops immediately rather than retrying pointlessly.
-5. Saves progress to CSV/JSON after each page and logs every step for later review.
+5. Saves progress to CSV/JSON/xlsx(Excel) after each page and logs every step for later review.
 
 ## Notes
 
@@ -65,7 +68,7 @@ Built as a learning project to practice real-world scraping concerns: pagination
 
 # اسکرپر کتاب
 
-یک اسکریپت پایتون که **همه‌ی کتاب‌های تمام صفحات** سایت [books.toscrape.com](https://books.toscrape.com/) -- یک سایت آزمایشی برای تمرین اسکرپینگ -- را استخراج می‌کند. این اسکریپت صفحه‌بندی (pagination) را مدیریت می‌کند، درخواست‌های ناموفق را دوباره تلاش می‌کند، همه‌چیز را لاگ می‌کند، و نتیجه را به‌صورت CSV و JSON ذخیره می‌کند.
+یک اسکریپت پایتون که **همه‌ی کتاب‌های تمام صفحات** سایت [books.toscrape.com](https://books.toscrape.com/) -- یک سایت آزمایشی برای تمرین اسکرپینگ -- را استخراج می‌کند. این اسکریپت صفحه‌بندی (pagination) را مدیریت می‌کند، درخواست‌های ناموفق را دوباره تلاش می‌کند، همه‌چیز را لاگ می‌کند، و نتیجه را به‌صورت CSV , JSON و جدول اکسل (xlsx) ذخیره می‌کند.
 
 ## ویژگی‌ها
 
@@ -73,7 +76,7 @@ Built as a learning project to practice real-world scraping concerns: pagination
 - **منطق تلاش مجدد (Retry)**: در صورت تایم‌اوت (مثلاً اتصال کند)، تا ۵ بار دوباره تلاش می‌کند قبل از صرف‌نظر کردن از آن صفحه
 - **اعتبارسنجی کد وضعیت**: پاسخ‌های غیر از ۲۰۰ را به‌عنوان خطا در نظر می‌گیرد، نه اینکه بی‌صدا صفحه‌ی نامعتبر را پردازش کند
 - **لاگ‌گیری**: هر درخواست، تلاش مجدد، استخراج داده و خطا با زمان دقیق در فایل `scraper.log` ثبت می‌شود
-- **خروجی دوگانه**: نتایج در `books.csv` و `books.json` ذخیره می‌شوند
+- **خروجی چندگانه**: نتایج در `books.csv` , `books.json`و ‍‍‍‍‍‍‍‍‍‍‍`books.xlsx` ذخیره می‌شوند
 - **گزارش خلاصه**: تعداد کل کتاب‌ها، میانگین قیمت، و تعداد موجود در پایان چاپ می‌شود
 
 ## پیش‌نیازها
@@ -81,10 +84,13 @@ Built as a learning project to practice real-world scraping concerns: pagination
 - Python 3.8 یا بالاتر
 - `requests`
 - `beautifulsoup4`
+- `pandas`
+- `openpyxl`
 
 نصب پیش‌نیازها:
+
 ```bash
-pip install requests beautifulsoup4
+pip install requests beautifulsoup4 pandas openpyxl
 ```
 
 ## نحوه‌ی اجرا
@@ -93,7 +99,7 @@ pip install requests beautifulsoup4
 python3 book_scraper.py
 ```
 
-فایل‌های خروجی (`books.csv`, `books.json`, `scraper.log`) در همان پوشه ساخته می‌شوند.
+فایل‌های خروجی (`books.csv`, `books.json`, `books.xlsx`, `scraper.log`) در همان پوشه ساخته می‌شوند.
 
 ## نمونه‌ی خروجی
 
@@ -109,7 +115,7 @@ available books : 1000
 ۲. برای فهمیدن زمان توقف، وجود لینک "next" را بررسی می‌کند (حتی اگر تعداد صفحات سایت تغییر کند، درست کار می‌کند).
 ۳. در صورت تایم‌اوت، همان صفحه را تا ۵ بار با یک تأخیر کوتاه دوباره تلاش می‌کند.
 ۴. در صورت خطای اتصال (مثلاً دامنه‌ی غیرقابل‌دسترس)، بدون تلاش بی‌فایده‌ی مجدد، فوراً متوقف می‌شود.
-۵. بعد از هر صفحه پیشرفت را در CSV/JSON ذخیره می‌کند و هر مرحله را برای بررسی بعدی لاگ می‌کند.
+۵. بعد از هر صفحه پیشرفت را در CSV/JSON/xlsx(فایل اکسل) ذخیره می‌کند و هر مرحله را برای بررسی بعدی لاگ می‌کند.
 
 ## توضیحات
 

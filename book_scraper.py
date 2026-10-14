@@ -4,6 +4,7 @@ import json
 import csv
 import time
 import logging
+import pandas
 
 logging.basicConfig(
     filename="scraper.log",
@@ -65,6 +66,7 @@ def fetch_data(url):
         books_list.append([title, price, stars_dict[stars[1]], availability])
     save_json()
     save_csv()
+    save_excel()
     time.sleep(1)
     return soup.find("li", class_="next")
 
@@ -103,6 +105,14 @@ def save_csv():
             )
 
 
+def save_excel():
+    with pandas.ExcelWriter("books.xlsx") as writer:
+        datafield = pandas.DataFrame(
+            books_list, columns=["title", "price", "stars", "availability"]
+        )
+        datafield.to_excel(writer, index=False)
+
+
 current_page = 1
 
 
@@ -128,3 +138,32 @@ def __main__():
 
 __main__()
 logging.info(f"End Of Process - Number Of Books Fetched : {len(books_list)}")
+
+
+# def convert_to_excel():
+#     csv_data = pandas.read_csv("books.csv")
+#     print(csv_data.head())
+#     print(csv_data.describe())
+#     print(csv_data["price"].mean())
+#     print(csv_data["price"].max())
+
+#     expensive_books = csv_data[
+#         csv_data["price"] > csv_data["price"].mean()
+#     ].sort_values("price", ascending=False)
+#     cheap_books = csv_data[csv_data["price"] <= 20].sort_values("price")
+#     print(f"above avg : {len(expensive_books)}")
+#     print(expensive_books.head())
+#     print(f"below avg : {len(cheap_books)}")
+#     print(cheap_books.head())
+#     books_by_rating = csv_data.groupby("stars")["price"].agg(["mean", "count"])
+#     print(books_by_rating)
+#     with pandas.ExcelWriter("books_report.xlsx") as writer:
+#         csv_data.to_excel(writer, sheet_name="All Books", index=False)
+#         expensive_books.to_excel(writer, sheet_name="Expensive Books", index=False)
+#         cheap_books.to_excel(writer, sheet_name="Cheap Books", index=False)
+#         books_by_rating.to_excel(writer, sheet_name="By Rating")
+#         pandas.concat([expensive_books.head(10), cheap_books.head(10)]).to_excel(
+#             writer, sheet_name="Top And Bottom", index=False
+#         )
+
+# convert_to_excel()
